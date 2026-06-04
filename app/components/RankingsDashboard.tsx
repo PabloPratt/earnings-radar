@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { CompanyRanking, RankingUpdate } from '@/lib/types';
 import { SettingsPanel } from './SettingsPanel';
+import { LearningProfile } from './LearningProfile';
 
 export function RankingsDashboard() {
   const [rankings, setRankings] = useState<CompanyRanking[]>([]);
@@ -130,6 +131,7 @@ export function RankingsDashboard() {
           </div>
         )}
       </div>
+      <LearningProfile />
       <SettingsPanel />
     </div>
   );
