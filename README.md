@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Earnings Radar
+
+A real-time stock screener that ranks companies with upcoming earnings reports by:
+- **Analyst Sentiment**: How undervalued the stock is according to analysts
+- **Beat Probability**: Likelihood the company will exceed earnings expectations
+- **Composite Score**: Combined ranking metric (0-100)
+
+## Features
+
+- 🔄 Real-time data updates every minute
+- 📊 Live leaderboard of high-potential earnings plays
+- 📈 Combines analyst sentiment with historical beat rates
+- 🎯 Filters for stocks with strong upside potential
+- 🚀 Built with Next.js and React
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+
+- UnusualWhales API key
+
+### Installation
+
+```bash
+npm install
+```
+
+### Configuration
+
+1. Get your UnusualWhales API key from https://unusualwhales.com/
+2. Copy `.env.local.example` to `.env.local`
+3. Add your API key:
+
+```bash
+UNUSUALWHALES_API_KEY=your_key_here
+```
+
+### Running the App
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 to see the live dashboard.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How It Works
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The ranking engine:
+1. **Fetches upcoming earnings** from the next 30 days
+2. **Analyzes analyst sentiment** - extracts undervalued signals from target prices vs. current prices
+3. **Calculates beat probability** - combines historical beat rates with analyst consensus
+4. **Ranks all candidates** - filters and scores based on a composite metric
+5. **Serves via API** - real-time data cached for 5 minutes
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend**: React, Next.js 15, Tailwind CSS
+- **Backend**: Next.js API Routes
+- **Data**: UnusualWhales API
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
