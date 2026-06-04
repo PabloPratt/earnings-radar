@@ -25,8 +25,20 @@ export function LearningProfile() {
   const [stats, setStats] = useState<LearningStats | null>(null);
   const [symbols, setSymbols] = useState<SymbolStat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [traderName, setTraderName] = useState('Paradox Algo');
 
   useEffect(() => {
+    // Get trader name from localStorage
+    try {
+      const trader = localStorage.getItem('followed_trader');
+      if (trader) {
+        const parsed = JSON.parse(trader);
+        setTraderName(parsed.name);
+      }
+    } catch (e) {
+      // Default to Paradox Algo
+    }
+
     const fetchProfile = async () => {
       try {
         const response = await fetch('/api/trades/analyze');
@@ -60,7 +72,7 @@ export function LearningProfile() {
   return (
     <div className="mt-8 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-indigo-900/10 rounded-lg border border-purple-200 dark:border-purple-800 p-6">
       <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-        🤖 Paradox Algo Learning Profile
+        📊 Learning from {traderName}
       </h2>
 
       {/* Key Stats Grid */}
