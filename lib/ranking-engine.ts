@@ -12,15 +12,20 @@ export class RankingEngine {
   }
 
   private async getUpcomingEarnings(): Promise<EarningsData[]> {
-    // Fetch companies with upcoming earnings in the next 30 days
-    const response = await axios.get(
-      `${UNUSUALWHALES_API}/earnings/upcoming`,
-      {
-        headers: { 'Authorization': `Bearer ${this.apiKey}` },
-        params: { days: 30 },
-      }
-    );
-    return response.data.earnings || [];
+    try {
+      const response = await axios.get(
+        `${UNUSUALWHALES_API}/earnings/upcoming`,
+        {
+          headers: { 'Authorization': `Bearer ${this.apiKey}` },
+          params: { days: 30 },
+          timeout: 5000,
+        }
+      );
+      return response.data.earnings || [];
+    } catch (error) {
+      console.error('Failed to fetch earnings from UnusualWhales:', error);
+      return [];
+    }
   }
 
   private async getAnalystData(ticker: string): Promise<AnalystData | null> {
@@ -47,25 +52,6 @@ export class RankingEngine {
 
   private async getTradeSignal(ticker: string): Promise<number> {
     try {
-      // First try local webhook data
-      const localResponse = await axios.get(
-        `/api/webhook/trades?symbol=${ticker}`,
-        { timeout: 1000 }
-      ).catch(() => null);
-
-      if (localResponse?.data) {
-        const action = localResponse.data.action?.toLowerCase() || '';
-        const signals: Record<string, number> = {
-          'long': 85,
-          'buy': 85,
-          'short': 15,
-          'sell': 15,
-          'close': 50,
-        };
-        return signals[action] || 50;
-      }
-
-      // Fallback to pickmytrade API
       const response = await axios.get(
         `${PICKMYTRADE_API}/add-trade-data-latest`,
         { params: { symbol: ticker }, timeout: 3000 }

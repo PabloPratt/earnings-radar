@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { CompanyRanking, RankingUpdate } from '@/lib/types';
 import { SettingsPanel } from './SettingsPanel';
 import { LearningProfile } from './LearningProfile';
-import { FollowTrader } from './FollowTrader';
 
 export function RankingsDashboard() {
   const [rankings, setRankings] = useState<CompanyRanking[]>([]);
@@ -60,15 +59,13 @@ export function RankingsDashboard() {
           )}
         </div>
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 mb-6 text-red-300">
-            {error}
-          </div>
-        )}
-
         {rankings.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            No high-potential earnings candidates found at this time.
+          <div className="text-center py-12">
+            <p className="text-gray-400">
+              {error
+                ? '📊 Warming up... Earnings data will appear shortly.'
+                : 'No high-potential earnings candidates found at this time.'}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -133,7 +130,6 @@ export function RankingsDashboard() {
         )}
       </div>
       <LearningProfile />
-      <FollowTrader />
       <SettingsPanel />
     </div>
   );

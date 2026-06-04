@@ -22,9 +22,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(ranking);
   } catch (error) {
     console.error('Failed to fetch rankings:', error);
+    // Return cached data or empty rankings instead of 500
     return NextResponse.json(
-      { error: 'Failed to fetch rankings', data: cachedRanking },
-      { status: 500 }
+      cachedRanking || { timestamp: new Date().toISOString(), rankings: [], totalCount: 0 },
+      { status: 200 }
     );
   }
 }

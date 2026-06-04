@@ -2,38 +2,20 @@
 
 import { useState } from 'react';
 
-interface Account {
-  id: string;
-  name: string;
-  token: string;
-}
-
 export function SettingsPanel() {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [newAccount, setNewAccount] = useState({ name: '', token: '' });
+  const [copied, setCopied] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [saved, setSaved] = useState(false);
 
-  const addAccount = () => {
-    if (newAccount.name && newAccount.token) {
-      const account = {
-        id: Date.now().toString(),
-        ...newAccount,
-      };
-      const updatedAccounts = [...accounts, account];
-      setAccounts(updatedAccounts);
-      localStorage.setItem('tradovate_accounts', JSON.stringify(updatedAccounts));
-      setNewAccount({ name: '', token: '' });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    }
+  const copyWebhookUrl = () => {
+    navigator.clipboard.writeText('https://earnings-radar-snowy.vercel.app/api/webhook/trades');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  const removeAccount = (id: string) => {
-    const updatedAccounts = accounts.filter(a => a.id !== id);
-    setAccounts(updatedAccounts);
-    localStorage.setItem('tradovate_accounts', JSON.stringify(updatedAccounts));
-  };
+  const accounts = [
+    { name: 'joseph pratt3508', token: 'EMIgWszWXTQZUrKWYAHm4A', status: '🟢 Active' },
+    { name: 'joseph2 (MNQ1)', token: 'EMIgWszWXTQZUrKWYAHm4A', status: '🟢 Active' },
+  ];
 
   return (
     <div className="fixed bottom-8 right-8 z-50">
@@ -45,80 +27,69 @@ export function SettingsPanel() {
       </button>
 
       {showForm && (
-        <div className="absolute bottom-20 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-80 border border-gray-200 dark:border-gray-700">
+        <div className="absolute bottom-20 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-96 border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-            Tradovate Accounts
+            📊 My Accounts
           </h3>
 
-          {/* Add Account Form */}
-          <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <input
-              type="text"
-              placeholder="Account Name (e.g., Trading Account 1)"
-              value={newAccount.name}
-              onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
-              className="w-full px-3 py-2 mb-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
-            />
-            <input
-              type="password"
-              placeholder="API Token"
-              value={newAccount.token}
-              onChange={(e) => setNewAccount({ ...newAccount, token: e.target.value })}
-              className="w-full px-3 py-2 mb-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
-            />
-            <button
-              onClick={addAccount}
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium"
-            >
-              Add Account
-            </button>
-            {saved && (
-              <p className="text-green-600 dark:text-green-400 text-sm mt-2">✓ Saved!</p>
-            )}
-          </div>
-
           {/* Connected Accounts */}
-          {accounts.length > 0 && (
-            <div>
-              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Connected Accounts ({accounts.length})
-              </h4>
-              <div className="space-y-2">
-                {accounts.map((account) => (
-                  <div
-                    key={account.id}
-                    className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800"
-                  >
-                    <div className="flex-1">
+          <div className="mb-6">
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              Connected to PickMyTrade
+            </h4>
+            <div className="space-y-2">
+              {accounts.map((account) => (
+                <div
+                  key={account.name}
+                  className="flex items-start justify-between bg-green-50 dark:bg-green-900/20 p-3 rounded border border-green-200 dark:border-green-800"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
                       <p className="font-medium text-green-900 dark:text-green-300">
                         {account.name}
                       </p>
-                      <p className="text-xs text-green-700 dark:text-green-400">
-                        Token: {account.token.substring(0, 8)}...
-                      </p>
+                      <span className="text-xs">{account.status}</span>
                     </div>
-                    <button
-                      onClick={() => removeAccount(account.id)}
-                      className="ml-2 text-red-600 hover:text-red-800 font-bold"
-                    >
-                      ✕
-                    </button>
+                    <p className="text-xs text-green-700 dark:text-green-400 mt-1">
+                      Token: {account.token.substring(0, 12)}...
+                    </p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
 
           {/* Webhook Info */}
-          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800">
-            <p className="text-xs font-semibold text-blue-900 dark:text-blue-300 mb-1">
-              📡 Webhook URL
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded border border-blue-200 dark:border-blue-800 p-4">
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
+              🔗 Webhook Configuration
             </p>
-            <code className="text-xs text-blue-800 dark:text-blue-400 break-all">
-              https://earnings-radar-snowy.vercel.app/api/webhook/trades
-            </code>
-            <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-              Send your Tradovate orders here with your token & account name.
+            <p className="text-xs text-blue-800 dark:text-blue-400 mb-2">
+              Send Paradox Algo signals to this URL:
+            </p>
+            <div className="flex items-center gap-2 bg-white dark:bg-gray-700 p-2 rounded mb-2">
+              <code className="text-xs text-gray-800 dark:text-gray-200 flex-1 break-all">
+                https://earnings-radar-snowy.vercel.app/api/webhook/trades
+              </code>
+              <button
+                onClick={copyWebhookUrl}
+                className="text-blue-600 hover:text-blue-800 text-sm font-bold whitespace-nowrap"
+              >
+                {copied ? '✓' : 'Copy'}
+              </button>
+            </div>
+            <p className="text-xs text-blue-700 dark:text-blue-400">
+              Include your token & account info in the request body
+            </p>
+          </div>
+
+          {/* Trader ID */}
+          <div className="mt-4 bg-purple-50 dark:bg-purple-900/20 rounded border border-purple-200 dark:border-purple-800 p-3">
+            <p className="text-xs font-semibold text-purple-900 dark:text-purple-300 mb-1">
+              👤 Your PickMyTrade ID
+            </p>
+            <p className="text-sm font-mono text-purple-700 dark:text-purple-400">
+              18141
             </p>
           </div>
         </div>
