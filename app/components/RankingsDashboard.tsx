@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CompanyRanking, RankingUpdate } from '@/lib/types';
+import { SettingsPanel } from './SettingsPanel';
 
 export function RankingsDashboard() {
   const [rankings, setRankings] = useState<CompanyRanking[]>([]);
@@ -129,6 +130,7 @@ export function RankingsDashboard() {
           </div>
         )}
       </div>
+      <SettingsPanel />
     </div>
   );
 }
