@@ -47,6 +47,25 @@ export class RankingEngine {
 
   private async getTradeSignal(ticker: string): Promise<number> {
     try {
+      // First try local webhook data
+      const localResponse = await axios.get(
+        `/api/webhook/trades?symbol=${ticker}`,
+        { timeout: 1000 }
+      ).catch(() => null);
+
+      if (localResponse?.data) {
+        const action = localResponse.data.action?.toLowerCase() || '';
+        const signals: Record<string, number> = {
+          'long': 85,
+          'buy': 85,
+          'short': 15,
+          'sell': 15,
+          'close': 50,
+        };
+        return signals[action] || 50;
+      }
+
+      // Fallback to pickmytrade API
       const response = await axios.get(
         `${PICKMYTRADE_API}/add-trade-data-latest`,
         { params: { symbol: ticker }, timeout: 3000 }
@@ -55,7 +74,6 @@ export class RankingEngine {
       const data = response.data;
       if (!data || !data.signal) return 0;
 
-      // Map trade signal strength to 0-100 scale
       const signals: Record<string, number> = {
         'strong_buy': 95,
         'buy': 75,
