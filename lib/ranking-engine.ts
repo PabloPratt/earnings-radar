@@ -2,6 +2,7 @@ import axios from 'axios';
 import { CompanyRanking, RankingUpdate, EarningsData, AnalystData } from './types';
 
 const UNUSUALWHALES_API = 'https://api.unusualwhales.com';
+const PICKMYTRADE_API = 'https://api.pickmytrade.trade/v2';
 
 export class RankingEngine {
   private apiKey: string;
@@ -44,6 +45,32 @@ export class RankingEngine {
     }
   }
 
+  private async getTradeSignal(ticker: string): Promise<number> {
+    try {
+      const response = await axios.get(
+        `${PICKMYTRADE_API}/add-trade-data-latest`,
+        { params: { symbol: ticker }, timeout: 3000 }
+      );
+
+      const data = response.data;
+      if (!data || !data.signal) return 0;
+
+      // Map trade signal strength to 0-100 scale
+      const signals: Record<string, number> = {
+        'strong_buy': 95,
+        'buy': 75,
+        'hold': 50,
+        'sell': 25,
+        'strong_sell': 5,
+      };
+
+      return signals[data.signal.toLowerCase()] ||
+             (data.strength ? Math.min(100, data.strength * 100) : 50);
+    } catch {
+      return 0;
+    }
+  }
+
   private calculateBeatProbability(
     ticker: string,
     historicalBeatRate: number,
@@ -56,10 +83,11 @@ export class RankingEngine {
 
   private calculateCompositeScore(
     analystScore: number,
-    beatProbability: number
+    beatProbability: number,
+    tradeSignal: number = 0
   ): number {
-    // Weight: 40% analyst sentiment, 60% beat probability
-    return analystScore * 0.4 + beatProbability * 0.6;
+    // Weight: 35% analyst sentiment, 50% beat probability, 15% trade signal
+    return analystScore * 0.35 + beatProbability * 0.5 + tradeSignal * 0.15;
   }
 
   async rankCompanies(): Promise<CompanyRanking[]> {
@@ -76,7 +104,8 @@ export class RankingEngine {
         earning.historicalBeatRate,
         analystScore
       );
-      const composite = this.calculateCompositeScore(analystScore, beatProb);
+      const tradeSignal = await this.getTradeSignal(earning.ticker);
+      const composite = this.calculateCompositeScore(analystScore, beatProb, tradeSignal);
 
       const now = new Date();
       const earningDate = new Date(earning.reportDate);
